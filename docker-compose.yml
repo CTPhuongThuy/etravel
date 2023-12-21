@@ -60,22 +60,22 @@ services:
     networks:
       - rabbitmq_node_net
 
-  # scheduler:
-  #   restart: always
-  #   image: scheduler
-  #   environment:
-  #     - "TZ=Asia/Bangkok"
-  #   container_name: scheduler
-  #   env_file:
-  #     - scheduler.env
-  #   depends_on:
-  #     - sqldb
-  #     - api
-  #   build:
-  #     context: .
-  #     dockerfile: JobScheduler/Dockerfile
-  #   networks:
-  #     - rabbitmq_node_net
+  scheduler:
+    restart: always
+    image: scheduler
+    environment:
+      - "TZ=Asia/Bangkok"
+    container_name: scheduler
+    env_file:
+      - scheduler.env
+    depends_on:
+      - sqldb
+      - api
+    build:
+      context: .
+      dockerfile: JobScheduler/Dockerfile
+    networks:
+      - rabbitmq_node_net
 
   node:
     image: socket_convert
