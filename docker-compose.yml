@@ -1,0 +1,123 @@
+﻿version: "3.4"
+name: "etravel"
+services:
+  sqldb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    user: root
+    container_name: sqldb
+    restart: always
+    environment:
+      - "ACCEPT_EULA=Y"
+      - "MSSQL_SA_PASSWORD=Abcd@1234"
+      - "TZ=Asia/Bangkok"
+    ports:
+      - "1107:1433"
+    volumes:
+      - db_data:/var/opt/mssql/data
+      - ./DAL/Data:/usr/src/app
+    working_dir: /usr/src/app
+    command: /bin/sh -c 'chmod +x ./sql_entrypoint.sh; ./sql_entrypoint.sh & /opt/mssql/bin/sqlservr;'
+    networks:
+      - rabbitmq_node_net
+
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "9000:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - rabbitmq_node_net
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+      - rabbitmq_node_net
+
+  api:
+    image: api
+    restart: always
+    env_file:
+      - api.env
+    environment:
+      - "TZ=Asia/Bangkok"
+    container_name: api
+    ports:
+      - "8000:80"
+    depends_on:
+      - sqldb
+    build:
+      context: .
+      dockerfile: API/Dockerfile
+    networks:
+      - rabbitmq_node_net
+
+  # scheduler:
+  #   restart: always
+  #   image: scheduler
+  #   environment:
+  #     - "TZ=Asia/Bangkok"
+  #   container_name: scheduler
+  #   env_file:
+  #     - scheduler.env
+  #   depends_on:
+  #     - sqldb
+  #     - api
+  #   build:
+  #     context: .
+  #     dockerfile: JobScheduler/Dockerfile
+  #   networks:
+  #     - rabbitmq_node_net
+
+  node:
+    image: socket_convert
+    env_file:
+      - NodeJS/.env
+    restart: always
+    container_name: socket_convert
+    environment:
+      - PORT=5000
+      - BASE_URL=http://localhost:8002
+    ports:
+      - 8002:5000
+    depends_on:
+      - rabbitmq
+    build:
+      context: ./NodeJS
+      dockerfile: Dockerfile
+    networks:
+      - rabbitmq_node_net
+  
+  webapp:
+    image: webapp
+    container_name: webapp
+    ports:
+      - 8005:80
+    depends_on:
+      - api
+      - sqldb
+    build: 
+      context: ./WebApp
+      dockerfile: Dockerfile
+    stdin_open: true
+    networks:
+      - rabbitmq_node_net
+    
+
+volumes:
+  db_data:
+  redis_data:
+  redisinsight_data:
+
+
+networks:
+  rabbitmq_node_net:
+    driver: bridge
