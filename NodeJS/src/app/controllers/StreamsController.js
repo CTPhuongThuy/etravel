@@ -132,7 +132,7 @@ class StreamsController {
 
       res.status(200).json({
         message: 'Conversion completed',
-        fileLink: `https://etravelconversion.azurewebsites.net/etravel/live/hls/${req.query.fileName}/playlist.m3u8`,
+        fileLink: `${process.env.BASE_URL}/etravel/live/hls/${req.query.fileName}/playlist.m3u8`,
       });
     } catch (error) {
       console.error('An error occurred:', error);
