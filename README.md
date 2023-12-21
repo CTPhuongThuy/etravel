@@ -1,20 +1,48 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+## eTravel Run Locally (Docker-compose)
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+Pull source
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+```bash
+  git clone https://github.com/CTPhuongThuy/etravel
+```
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+Go to the project directory
+
+```bash
+  cd etravel
+```
+
+Edit API/appsettings.Development.json
+
+```bash
+  "AzureStorageSettings": {
+    "ConnectionString": "[Replace your Azure Storage Account connection string here]"
+  }
+```
+
+Edit NodeJS/.env
+```bash
+  AZURE_STORAGE_CONNECTION_STRING='[Replace your Azure Storage Account connection string here]'
+```
+
+Run docker compose
+
+```bash
+  docker compose up --build -d
+```
+
+Wait about 2 minutes for SQL Server to be initiated and SQL file imported
+
+Give it a try by accessing eTravel Web Application at:
+
+```bash
+  http://localhost:8005
+```
+
+
+
+## Authors
+
+- [@CTPhuongThuy](https://github.com/CTPhuongThuy)
+
